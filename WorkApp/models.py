@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from WorkApp import validators as custom_validators
 from WorkApp.constants import *
-from mptt.models import MPTTModel, TreeForeignKey
 
 
 class Names(models.Model):
@@ -10,13 +9,16 @@ class Names(models.Model):
     second_name = models.CharField(max_length=SECOND_NAME_LEN)
     third_name = models.CharField(max_length=THIRD_NAME_LEN)
 
+    def __str__(self):
+        return self.second_name + ' ' + self.first_name + ' ' + self.third_name
+
 
 class DateWork(models.Model):
     class Meta:
         abstract = True
 
     created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True, auto_now=True)
 
 
 class Client(DateWork):
@@ -38,6 +40,9 @@ class Client(DateWork):
     timezone = models.CharField(choices=TIMEZONES,
                                 max_length=TIMEZONE_LEN)
 
+    def __str__(self):
+        return str(self.id) + ' ' + self.name.second_name
+
 
 class PhoneNumbers(models.Model):
     """
@@ -58,10 +63,27 @@ class Emails(models.Model):
 
 
 class SocialNetworks(models.Model):
+    class Meta:
+        abstract = True
+
     owner = models.ForeignKey(Client,
                               on_delete=models.CASCADE, )
     social_name = models.CharField(max_length=SOCIAL_NAME_LEN)
     social_id = models.CharField(max_length=SOCIAL_ID_LEN)
+
+
+class SocialNetworksUniq(SocialNetworks):
+    class Meta:
+        unique_together = ('owner', 'social_name',)
+
+    social_name = models.CharField(max_length=SOCIAL_NAME_LEN,
+                                   choices=UNIQ_SOCIALS)
+
+
+class SocialNetworksNotUniq(SocialNetworksUniq):
+    social_name_not_uniq = models.CharField(max_length=SOCIAL_NAME_LEN,
+                                            choices=NOT_UNIQ_SOCIALS,
+                                            verbose_name='social_name')
 
 
 class LegalPerson(DateWork):
@@ -75,14 +97,23 @@ class LegalPerson(DateWork):
     INN = models.IntegerField()
     KPP = models.IntegerField()
 
+    def __str__(self):
+        return self.short_title
 
-class Departments(MPTTModel):
+
+class Departments(models.Model):
     id = models.CharField(max_length=ID_LEN,
                           validators=[custom_validators.validate_correct_department],
                           primary_key=True)
     title = models.CharField(max_length=DEPARTMENT_TITLE_LEN)
-    parent_department = TreeForeignKey('self',
-                                       blank=True,
-                                       null=True,
-                                       help_text='родитель нового департамента',
-                                       on_delete=models.CASCADE)
+    parent_department = models.ForeignKey('self',
+                                          blank=True,
+                                          null=True,
+                                          related_name='children',
+                                          help_text='родитель нового департамента',
+                                          on_delete=models.CASCADE)
+    owners = models.ManyToManyField(LegalPerson)
+    clients = models.ManyToManyField(Client)
+
+    def __str__(self):
+        return str(self.clients.count())

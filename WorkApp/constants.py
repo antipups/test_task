@@ -20,6 +20,14 @@ TIMEZONES = (('Москва', '+3:00'),
              # ...
              )
 
+NOT_UNIQ_SOCIALS = (('VK', 'VK'),
+                    ('FB', 'FB'))
+UNIQ_SOCIALS = (('OK', 'OK'),
+                ('Instagram', 'Instagram'),
+                ('Telegram', 'Instagram'),
+                ('WhatsApp', 'WhatsApp'),
+                ('Viber', 'Viber'))
+
 PHONE_LEN = 20
 SOCIAL_NAME_LEN = 16
 SOCIAL_ID_LEN = 32
