@@ -22,11 +22,12 @@ class DateWork(models.Model):
 
 
 class Client(DateWork):
-    user = models.OneToOneField(User,
-                                on_delete=models.CASCADE,
-                                primary_key=True)
+    # ForeignKey для тестов, обычно бы тут поставил OneToOne
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE)
     id = models.CharField(max_length=ID_LEN,
-                          validators=[custom_validators.validate_correct_client_id])
+                          validators=[custom_validators.validate_correct_client_id],
+                          primary_key=True)
     phone = models.CharField(max_length=PHONE_LEN,
                              unique=True)
     name = models.ForeignKey(Names,
@@ -87,11 +88,12 @@ class SocialNetworksNotUniq(SocialNetworksUniq):
 
 
 class LegalPerson(DateWork):
-    user = models.OneToOneField(User,
-                                on_delete=models.CASCADE,
-                                primary_key=True)
+    # ForeignKey для тестов, обычно бы тут поставил OneToOne
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,)
     id = models.CharField(max_length=ID_LEN,
-                          validators=[custom_validators.validate_correct_legal_person_id])
+                          validators=[custom_validators.validate_correct_legal_person_id],
+                          primary_key=True)
     full_title = models.CharField(max_length=FULL_TITLE_LEN)
     short_title = models.CharField(max_length=SHORT_TITLE_LEN)
     INN = models.IntegerField()
