@@ -31,9 +31,12 @@ class Client(DateWork):
                              on_delete=models.DO_NOTHING)
 
     status = models.BooleanField(default=True)
-    type_ = models.TextChoices(CLIENT_TYPES)
-    gender = models.TextChoices(GENDER)
-    timezone = models.TextChoices(TIMEZONES)
+    client_type = models.CharField(choices=CLIENT_TYPES,
+                                   max_length=CLIENT_TYPE_LEN)
+    gender = models.CharField(choices=GENDER,
+                              max_length=GENDER_LEN)
+    timezone = models.CharField(choices=TIMEZONES,
+                                max_length=TIMEZONE_LEN)
 
 
 class PhoneNumbers(models.Model):
@@ -75,7 +78,8 @@ class LegalPerson(DateWork):
 
 class Departments(MPTTModel):
     id = models.CharField(max_length=ID_LEN,
-                          validators=[custom_validators.validate_correct_department])
+                          validators=[custom_validators.validate_correct_department],
+                          primary_key=True)
     title = models.CharField(max_length=DEPARTMENT_TITLE_LEN)
     parent_department = TreeForeignKey('self',
                                        blank=True,
